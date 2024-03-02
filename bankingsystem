@@ -1,0 +1,285 @@
+import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+class Account {
+    private String accountNumber;
+    private String accountType;
+    private double balance;
+
+    // Constructor
+    public Account(String accountNumber, String accountType, double balance) {
+        this.accountNumber = accountNumber;
+        this.accountType = accountType;
+        this.balance = balance;
+    }
+
+    // Getters and setters
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public String getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+}
+
+class User {
+    private String username;
+    private String password;
+    private Map<String, Account> accounts;
+
+    public User(String username, String password, Map<String, Account> accounts) {
+        this.username = username;
+        this.password = password;
+        this.accounts = accounts;
+    }
+
+    // Getters and setters
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Map<String, Account> getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(Map<String, Account> accounts) {
+        this.accounts = accounts;
+    }
+}
+
+public class OnlineBankingSystem {
+    private static Map<String, User> users = new HashMap<>();
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("1. Create Account");
+            System.out.println("2. Login");
+            System.out.println("3. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume the newline
+
+            switch (choice) {
+                case 1:
+                    createAccount();
+                    break;
+                case 2:
+                    login();
+                    break;
+                case 3:
+                    System.out.println("Exiting the system. Goodbye!");
+                    System.exit(0);
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private static void createAccount() {
+        Scanner scanner = new Scanner(System.in);
+    
+        System.out.print("Enter your username: ");
+        String username = scanner.nextLine();
+    
+        System.out.print("Enter your password: ");
+        String password = scanner.nextLine();
+    
+        // Assuming "savings" as the default account type during account creation
+        Account savingsAccount = new Account("accountNumber", "savings", 0.0);
+        Map<String, Account> accounts = new HashMap<>();
+        accounts.put("savings", savingsAccount);
+    
+        User user = new User(username, password, accounts);
+        users.put(username, user);
+    
+        System.out.println("Account created successfully.");
+    }
+    
+
+    private static void login() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter your username: ");
+        String username = scanner.nextLine();
+
+        System.out.print("Enter your password: ");
+        String password = scanner.nextLine();
+
+        User user = users.get(username);
+
+        if (user != null && user.getPassword().equals(password)) {
+            System.out.println("Login successful.");
+            performTransactions(user);
+        } else {
+            System.out.println("Invalid username or password. Please try again.");
+        }
+    }
+
+    private static void performTransactions(User user) {
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("1. Deposit");
+            System.out.println("2. Withdraw");
+            System.out.println("3. Transfer Funds");
+            System.out.println("4. View Balance");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume the newline
+
+            switch (choice) {
+                case 1:
+                    deposit(user);
+                    break;
+                case 2:
+                    withdraw(user);
+                    break;
+                case 3:
+                    transferFunds(user);
+                    break;
+                case 4:
+                    viewBalance(user);
+                    break;
+                case 5:
+                    System.out.println("Exiting transactions. Goodbye!");
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private static void deposit(User user) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Available account types: " + user.getAccounts().keySet());
+        System.out.print("Enter the account type to deposit into (e.g., savings, checking): ");
+        String accountType = scanner.nextLine();
+
+        Account account = user.getAccounts().get(accountType);
+
+        if (account != null) {
+            System.out.print("Enter the amount to deposit: ");
+            double amount = scanner.nextDouble();
+
+            if (amount > 0) {
+                double currentBalance = account.getBalance();
+                account.setBalance(currentBalance + amount);
+                System.out.println("Deposit successful. Updated balance: " + account.getBalance());
+            } else {
+                System.out.println("Invalid amount. Please enter a positive value.");
+            }
+        } else {
+            System.out.println("Invalid account type. Please try again.");
+        }
+    }
+
+    private static void withdraw(User user) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Available account types: " + user.getAccounts().keySet());
+        System.out.print("Enter the account type to withdraw from (e.g., savings, checking): ");
+        String accountType = scanner.nextLine();
+
+        Account account = user.getAccounts().get(accountType);
+
+        if (account != null) {
+            System.out.print("Enter the amount to withdraw: ");
+            double amount = scanner.nextDouble();
+
+            if (amount > 0 && amount <= account.getBalance()) {
+                double currentBalance = account.getBalance();
+                account.setBalance(currentBalance - amount);
+                System.out.println("Withdrawal successful. Updated balance: " + account.getBalance());
+            } else {
+                System.out.println("Invalid amount or insufficient funds. Please try again.");
+            }
+        } else {
+            System.out.println("Invalid account type. Please try again.");
+        }
+    }
+
+    private static void transferFunds(User user) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Available account types: " + user.getAccounts().keySet());
+        System.out.print("Enter the source account type: ");
+        String sourceAccountType = scanner.nextLine();
+        System.out.print("Enter the destination account type: ");
+        String destinationAccountType = scanner.nextLine();
+
+        Account sourceAccount = user.getAccounts().get(sourceAccountType);
+        Account destinationAccount = user.getAccounts().get(destinationAccountType);
+
+        if (sourceAccount != null && destinationAccount != null) {
+            System.out.print("Enter the amount to transfer: ");
+            double amount = scanner.nextDouble();
+
+            if (amount > 0 && amount <= sourceAccount.getBalance()) {
+                double sourceBalance = sourceAccount.getBalance();
+                double destinationBalance = destinationAccount.getBalance();
+
+                sourceAccount.setBalance(sourceBalance - amount);
+                destinationAccount.setBalance(destinationBalance + amount);
+
+                System.out.println("Funds transfer successful.");
+                System.out.println("Updated balance in source account (" + sourceAccountType + "): " + sourceAccount.getBalance());
+                System.out.println("Updated balance in destination account (" + destinationAccountType + "): " + destinationAccount.getBalance());
+            } else {
+                System.out.println("Invalid amount or insufficient funds in the source account. Please try again.");
+            }
+        } else {
+            System.out.println("Invalid source or destination account type. Please try again.");
+        }
+    }
+
+    private static void viewBalance(User user) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Available account types: " + user.getAccounts().keySet());
+        System.out.print("Enter the account type to view balance: ");
+        String accountType = scanner.nextLine();
+
+        Account account = user.getAccounts().get(accountType);
+
+        if (account != null) {
+            System.out.println("Current balance in " + accountType + " account: " + account.getBalance());
+        } else {
+            System.out.println("Invalid account type. Please try again.");
+    }
+}
+}
